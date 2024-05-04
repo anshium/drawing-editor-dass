@@ -26,25 +26,58 @@ class Shape:
             self.draw_shape(event)
 
     def on_release(self, event=None):
-        self.drawn = True
-        self.drawn_obj = DrawnObject()
-        self.drawn_obj.add_object(self)
-        self.drawingSpace.drawn_objects.append(self.drawn_obj)
+        if not self.drawn:
+            self.drawn = True
+            if self.x1 > self.x2:
+                self.x1, self.x2 = self.x1, self.x2
+            if self.y1 > self.y2:
+                self.y1, self.y2 = self.y1, self.y2
+
+            drawn_obj = DrawnObject(self.drawingSpace)
+            drawn_obj.add_object(self)
+            self.drawingSpace.drawn_objects.append(drawn_obj)
+
+        self.prev_x1, self.prev_y1, self.prev_x2, self.prev_y2 = (
+            self.x1,
+            self.y1,
+            self.x2,
+            self.y2,
+        )
         self.canvas.bind("<Button-1>", self.drawingSpace.on_click)
         self.canvas.bind("<B1-Motion>", self.drawingSpace.on_drag)
         self.canvas.bind("<ButtonRelease-1>", self.drawingSpace.on_release)
 
     def delete(self):
         self.canvas.delete(self.object)
-        self.canvas.drawn_objects.remove(self)
+
+    def move_on_click(self, event):
+        self.x, self.y = event.x, event.y
+
+    def move_on_drag(self, event, dx, dy):
+        if self.corner_style == "Square":
+            self.canvas.coords(
+                self.object, self.x1 + dx, self.y1 + dy, self.x2 + dx, self.y2 + dy
+            )
+        if self.corner_style == "Rounded":
+            if self.object:
+                self.canvas.delete(self.object)
+            self.object = self.round_rectangle(
+                self.x1 + dx, self.y1 + dy, self.x2 + dx, self.y2 + dy
+            )
+
+    def update_coords(self, event, dx, dy):
+        self.x1 += dx
+        self.y1 += dy
+        self.x2 += dx
+        self.y2 += dy
 
 
 class Rectangle(Shape):
     def __init__(self, drawingSpace):
         super().__init__(drawingSpace)
         self.shape_name = "Rectangle"
-        self.corner_style = "square"
-        self.color = "black"
+        self.corner_style = "Square"
+        self.color = "Black"
         self.x1 = None
         self.y1 = None
 
@@ -53,31 +86,120 @@ class Rectangle(Shape):
             self.canvas.delete(self.object)
         if event is not None:
             self.x2, self.y2 = event.x, event.y
-        self.object = self.canvas.create_rectangle(
-            self.x1, self.y1, self.x2, self.y2, outline=self.color
-        )
+        if self.corner_style == "Square":
+            self.object = self.canvas.create_rectangle(
+                self.x1, self.y1, self.x2, self.y2, outline=self.color
+            )
+        if self.corner_style == "Rounded":
+            self.object = self.round_rectangle(self.x1, self.y1, self.x2, self.y2)
 
-    def copy(self):
+    def duplicate(self):
         duplicate = Rectangle(self.drawingSpace)
         duplicate.x1, duplicate.y1, duplicate.x2, duplicate.y2 = (
-            self.x1 + 10,
-            self.y1 + 10,
-            self.x2 + 10,
-            self.y2 + 10,
+            self.x1 + 20,
+            self.y1 + 20,
+            self.x2 + 20,
+            self.y2 + 20,
         )
         duplicate.draw_shape()
-        duplicate.on_release()
+        duplicate.drawn = True
+        duplicate.canvas.bind("<Button-1>", duplicate.drawingSpace.on_click)
+        duplicate.canvas.bind("<B1-Motion>", duplicate.drawingSpace.on_drag)
+        duplicate.canvas.bind("<ButtonRelease-1>", duplicate.drawingSpace.on_release)
         return duplicate
 
-    def edit(self):
-        pass
+    def round_rectangle(self, x1, y1, x2, y2, radius=25):
+        points = [
+            x1 + radius,
+            y1,
+            x1 + radius,
+            y1,
+            x2 - radius,
+            y1,
+            x2 - radius,
+            y1,
+            x2,
+            y1,
+            x2,
+            y1 + radius,
+            x2,
+            y1 + radius,
+            x2,
+            y2 - radius,
+            x2,
+            y2 - radius,
+            x2,
+            y2,
+            x2 - radius,
+            y2,
+            x2 - radius,
+            y2,
+            x1 + radius,
+            y2,
+            x1 + radius,
+            y2,
+            x1,
+            y2,
+            x1,
+            y2 - radius,
+            x1,
+            y2 - radius,
+            x1,
+            y1 + radius,
+            x1,
+            y1 + radius,
+            x1,
+            y1,
+        ]
+        return self.canvas.create_polygon(
+            points, smooth=True, outline=self.color, fill=""
+        )
+
+    def apply_edits(self):
+        self.canvas.delete(self.object)
+        if self.corner_style == "Rounded":
+            self.object = self.round_rectangle(self.x1, self.y1, self.x2, self.y2)
+        if self.corner_style == "Square":
+            self.object = self.canvas.create_rectangle(
+                self.x1, self.y1, self.x2, self.y2, outline=self.color
+            )
+
+    def edit(self, master):
+        col_dropdown = tk.StringVar(master)
+        col_dropdown.set(self.color)
+        corner_dropdown = tk.StringVar(master)
+        corner_dropdown.set(self.corner_style)
+
+        def color_selected(event):
+            self.color = col_dropdown.get()
+
+        def corner_selected(event):
+            self.corner_style = corner_dropdown.get()
+
+        col_options = ["Black", "Red", "Green", "Blue"]
+        col_dropdown_menu = tk.OptionMenu(
+            master, col_dropdown, *col_options, command=color_selected
+        )
+        tk.Label(master, text="Color").pack(fill=tk.X)
+        col_dropdown_menu.pack(fill=tk.X)
+
+        corner_options = ["Square", "Rounded"]
+        corner_dropdown_menu = tk.OptionMenu(
+            master, corner_dropdown, *corner_options, command=corner_selected
+        )
+        tk.Label(master, text="Border").pack(fill=tk.X)
+        corner_dropdown_menu.pack(fill=tk.X)
+
+        submit_button = tk.Button(master, text="Apply", command=self.apply_edits)
+        submit_button.pack(fill=tk.X)
 
 
 class Line(Shape):
     def __init__(self, drawingSpace):
         super().__init__(drawingSpace)
         self.shape_name = "Line"
-        self.color = "black"
+        self.color = "Black"
+        self.corner_style = "Square"
         self.x1 = None
         self.y1 = None
 
@@ -90,27 +212,51 @@ class Line(Shape):
             self.x1, self.y1, self.x2, self.y2, fill=self.color
         )
 
-    def copy(self):
+    def duplicate(self):
         duplicate = Line(self.drawingSpace)
         duplicate.x1, duplicate.y1, duplicate.x2, duplicate.y2 = (
-            self.x1 + 10,
-            self.y1 + 10,
-            self.x2 + 10,
-            self.y2 + 10,
+            self.x1 + 20,
+            self.y1 + 20,
+            self.x2 + 20,
+            self.y2 + 20,
         )
         duplicate.draw_shape()
-        duplicate.on_release()
+        duplicate.drawn = True
+        duplicate.canvas.bind("<Button-1>", duplicate.drawingSpace.on_click)
+        duplicate.canvas.bind("<B1-Motion>", duplicate.drawingSpace.on_drag)
+        duplicate.canvas.bind("<ButtonRelease-1>", duplicate.drawingSpace.on_release)
+        return duplicate
 
-    def edit(self):
-        pass
+    def apply_edits(self):
+        self.canvas.itemconfig(self.object, fill=self.color, dash=())
+
+    def edit(self, master):
+        col_dropdown = tk.StringVar(master)
+        col_dropdown.set(self.color)
+
+        def color_selected(event):
+            self.color = col_dropdown.get()
+
+        col_options = ["Black", "Red", "Green", "Blue"]
+        tk.Label(master, text="Color").pack(fill=tk.X)
+        col_dropdown_menu = tk.OptionMenu(
+            master, col_dropdown, *col_options, command=color_selected
+        )
+        col_dropdown_menu.pack(fill=tk.X)
+
+        submit_button = tk.Button(master, text="Apply", command=self.apply_edits)
+        submit_button.pack()
 
 
 class DrawnObject:
-    def __init__(self):
+    def __init__(self, drawingSpace):
+        self.drawingSpace = drawingSpace
         self.is_primitive = False
         self.object_count = 0
         self.objects = []
+        self.allowMove = False
         self.x1, self.y1, self.x2, self.y2 = None, None, None, None
+        self.cursor_backup = self.drawingSpace.cget("cursor")
 
     def add_object(self, object):
         self.objects.append(object)
@@ -150,6 +296,80 @@ class DrawnObject:
             else:
                 obj.deselect()
 
+    def ungroup_once(self):
+        new_obj = self.objects[-1]
+        self.remove_object(new_obj)
+        self.drawingSpace.drawn_objects.append(new_obj)
+
+    def ungroup(self):
+        if self.object_count == 1:
+            return
+        else:
+            for obj in self.objects:
+                if obj.object_count == 1:
+                    self.drawingSpace.drawn_objects.append(obj)
+                else:
+                    obj.ungroup()
+            if self in self.drawingSpace.drawn_objects:
+                self.drawingSpace.drawn_objects.remove(self)
+
+    def delete(self):
+        if self.object_count == 1:
+            self.objects[0].delete()
+        else:
+            for obj in self.objects:
+                obj.delete()
+        if self in self.drawingSpace.drawn_objects:
+            self.drawingSpace.drawn_objects.remove(self)
+
+    def duplicate(self):
+        new_obj = DrawnObject(self.drawingSpace)
+        for obj in self.objects:
+            new_obj.add_object(obj.duplicate())
+        return new_obj
+
+    def copy(self):
+        new_obj = self.duplicate()
+        self.drawingSpace.drawn_objects.append(new_obj)
+
+    def move_on_click(self, event):
+        self.x, self.y = event.x, event.y
+        for obj in self.objects:
+            obj.move_on_click(event)
+
+    def move_on_drag(self, event, dx=0, dy=0):
+        for obj in self.objects:
+            obj.move_on_drag(event, event.x - self.x, event.y - self.y)
+
+    def update_coords(self, event, dx=0, dy=0):
+        self.allowMove = False
+        self.drawingSpace.config(cursor=self.cursor_backup)
+        self.drawingSpace.bind("<Button-1>", self.drawingSpace.on_click)
+        self.drawingSpace.bind("<B1-Motion>", self.drawingSpace.on_drag)
+        self.drawingSpace.bind("<ButtonRelease-1>", self.drawingSpace.on_release)
+        dx, dy = event.x - self.x, event.y - self.y
+        self.x1 += dx
+        self.y1 += dy
+        self.x2 += dx
+        self.y2 += dy
+        for obj in self.objects:
+            obj.update_coords(event, dx, dy)
+
+    def move(self):
+        if not self.allowMove:
+            self.allowMove = True
+            self.cursor_backup = self.drawingSpace.cget("cursor")
+            self.drawingSpace.config(cursor="fleur")
+            self.drawingSpace.bind("<Button-1>", self.move_on_click)
+            self.drawingSpace.bind("<B1-Motion>", self.move_on_drag)
+            self.drawingSpace.bind("<ButtonRelease-1>", self.update_coords)
+        else:
+            self.allowMove = False
+            self.drawingSpace.config(cursor=self.cursor_backup)
+            self.drawingSpace.bind("<Button-1>", self.drawingSpace.on_click)
+            self.drawingSpace.bind("<B1-Motion>", self.drawingSpace.on_drag)
+            self.drawingSpace.bind("<ButtonRelease-1>", self.drawingSpace.on_release)
+
 
 class Toolbar(tk.Frame):
     def __init__(self, app, master, drawingSpace, *args, **kwargs):
@@ -179,9 +399,11 @@ class Toolbar(tk.Frame):
         tk.Label(self, text="").pack(fill=tk.X)
 
     def draw_line(self):
+        self.drawingSpace.on_click()
         Line(self.drawingSpace)
 
     def draw_rectangle(self):
+        self.drawingSpace.on_click()
         Rectangle(self.drawingSpace)
 
     def save_drawing(self):
@@ -199,7 +421,6 @@ class ShapeToolbar(tk.Frame):
     def __init__(self, master, app, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         self.app = app
-        self.object = app.canvas.selected_objects[0].objects[0]
         self.pack_propagate(0)
         tk.Label(self, text="Shape Options", pady=10).pack(fill=tk.X)
 
@@ -221,16 +442,21 @@ class ShapeToolbar(tk.Frame):
         self.button_edit.pack(fill=tk.X)
 
     def delete_object(self):
-        pass
+        self.app.canvas.selected_objects[0].delete()
+        self.close()
 
     def copy_object(self):
-        pass
+        self.app.canvas.selected_objects[0].copy()
 
     def move_object(self):
-        pass
+        self.app.canvas.selected_objects[0].move()
 
     def edit_object(self):
-        pass
+        edit_frame = tk.Frame(self, pady=10, borderwidth=10, padx=10)
+        edit_frame.pack(fill=tk.X)
+        tk.Label(edit_frame, text="Edit Options", pady=10).pack(fill=tk.X)
+
+        self.app.canvas.selected_objects[0].objects[0].edit(edit_frame)
 
     def close(self):
         self.destroy()
@@ -250,10 +476,10 @@ class SelectionToolbar(tk.Frame):
         self.button_group.pack(fill=tk.X)
 
     def group_objects(self):
-        new_obj = DrawnObject()
+        new_obj = DrawnObject(self.app.canvas)
         for obj in self.app.canvas.selected_objects:
-            self.app.canvas.drawn_objects.remove(obj)
             new_obj.add_object(obj)
+            self.app.canvas.drawn_objects.remove(obj)
         self.app.canvas.drawn_objects.append(new_obj)
         self.close()
 
@@ -270,12 +496,12 @@ class GroupToolbar(tk.Frame):
         tk.Label(self, text="Group Options", pady=10).pack(fill=tk.X)
 
         self.button_ungroup = tk.Button(
-            self, text="Un-Group", command=self.ungroup_objects, width=10
+            self, text="Un-Group", command=self.ungroup_once, width=10
         )
         self.button_ungroup.pack(fill=tk.X)
 
         self.button_ungroup_all = tk.Button(
-            self, text="Un-Group All", command=self.ungroup_all_objects, width=10
+            self, text="Un-Group All", command=self.ungroup_all, width=10
         )
         self.button_ungroup_all.pack(fill=tk.X)
 
@@ -292,39 +518,23 @@ class GroupToolbar(tk.Frame):
         )
         self.button_move.pack(fill=tk.X)
 
-    def ungroup_objects(self):
-        selected_obj = self.app.canvas.selected_objects[0]
-        new_obj = selected_obj.objects[-1]
-        selected_obj.remove_object(new_obj)
-        self.app.canvas.drawn_objects.append(new_obj)
+    def ungroup_once(self):
+        self.app.canvas.selected_objects[0].ungroup_once()
         self.close()
 
-    def ungroup_recursive(self, obj):
-        if obj.object_count < 1:
-            return
-        if obj.object_count == 1 and obj.objects[0].is_primitive:
-            if obj not in self.app.canvas.drawn_objects:
-                self.app.canvas.drawn_objects.append(obj)
-            return
-        new_obj = obj.objects[-1]
-        obj.remove_object(new_obj)
-        self.ungroup_recursive(new_obj)
-        self.ungroup_recursive(obj)
-
-    def ungroup_all_objects(self):
-        selected_obj = self.app.canvas.selected_objects[0]
-        self.app.canvas.drawn_objects.remove(selected_obj)
-        self.ungroup_recursive(selected_obj)
+    def ungroup_all(self):
+        self.app.canvas.selected_objects[0].ungroup()
         self.close()
 
     def delete_group(self):
-        pass
+        self.app.canvas.selected_objects[0].delete()
+        self.close()
 
     def copy_group(self):
-        pass
+        self.app.canvas.selected_objects[0].copy()
 
     def move_group(self):
-        pass
+        self.app.canvas.selected_objects[0].move()
 
     def close(self):
         self.destroy()
@@ -401,7 +611,7 @@ class DrawingSpace(tk.Canvas):
             and self.selected_objects[0].object_count == 1
         ):
             self.selectedToolbar = ShapeToolbar(
-                self.app.toolbar, self.app, width=150, height=300
+                self.app.toolbar, self.app, width=150, height=500
             )
             self.selectedToolbar.pack(fill=tk.X)
         if (
@@ -409,12 +619,12 @@ class DrawingSpace(tk.Canvas):
             and self.selected_objects[0].object_count > 1
         ):
             self.selectedToolbar = GroupToolbar(
-                self.app.toolbar, self.app, width=150, height=300
+                self.app.toolbar, self.app, width=150, height=500
             )
             self.selectedToolbar.pack(fill=tk.X)
         if len(self.selected_objects) > 1:
             self.selectedToolbar = SelectionToolbar(
-                self.app.toolbar, self.app, width=150, height=300
+                self.app.toolbar, self.app, width=150, height=500
             )
             self.selectedToolbar.pack(fill=tk.X)
 
@@ -429,7 +639,7 @@ class DrawingApp:
         self.master.geometry("800x600")
 
         self.canvas = DrawingSpace(master, self, bg="white", width=600, height=600)
-        self.toolbar = Toolbar(self, master, self.canvas, bg="#d3d3d3", width=150, height=600)
+        self.toolbar = Toolbar(self, master, self.canvas, width=150, height=600)
 
         self.toolbar.pack(side=tk.LEFT, fill=tk.Y)
         self.canvas.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
@@ -438,43 +648,47 @@ class DrawingApp:
 
     def on_resize(self, event):
         self.canvas.resize_canvas(event)
-        
+
     def save_drawing(self, filename):
         drawn_objects_info = []
         for drawn_obj in self.canvas.drawn_objects:
             obj_info = {
                 "type": "group" if not drawn_obj.is_primitive else "primitive",
-                "objects": []
+                "objects": [],
             }
             if not drawn_obj.is_primitive:
                 for obj in drawn_obj.objects:
-                    obj_info["objects"].append({
-                        "type": obj.shape_name,
-                        "coordinates": [obj.x1, obj.y1, obj.x2, obj.y2],
-                        "color": obj.color
-                    })
+                    obj_info["objects"].append(
+                        {
+                            "type": obj.shape_name,
+                            "coordinates": [obj.x1, obj.y1, obj.x2, obj.y2],
+                            "color": obj.color,
+                        }
+                    )
             else:
                 obj = drawn_obj.objects[0]
-                obj_info["objects"].append({
-                    "type": obj.shape_name,
-                    "coordinates": [obj.x1, obj.y1, obj.x2, obj.y2],
-                    "color": obj.color
-                })
+                obj_info["objects"].append(
+                    {
+                        "type": obj.shape_name,
+                        "coordinates": [obj.x1, obj.y1, obj.x2, obj.y2],
+                        "color": obj.color,
+                    }
+                )
             drawn_objects_info.append(obj_info)
 
-        with open(filename, 'wb') as file:
+        with open(filename, "wb") as file:
             pickle.dump(drawn_objects_info, file)
         print("Drawing saved successfully.")
 
     def import_drawing(self, filename):
-        with open(filename, 'rb') as file:
+        with open(filename, "rb") as file:
             drawn_objects_info = pickle.load(file)
         if drawn_objects_info:
             # Clear Canvas
             self.canvas.delete("all")
             for obj_info in drawn_objects_info:
                 if obj_info["type"] == "group":
-                    drawn_obj = DrawnObject()
+                    drawn_obj = DrawnObject(self.canvas)
                     for obj_data in obj_info["objects"]:
                         shape_type = obj_data["type"]
                         coordinates = obj_data["coordinates"]
@@ -486,6 +700,8 @@ class DrawingApp:
                         obj.x1, obj.y1, obj.x2, obj.y2 = coordinates
                         obj.color = color
                         obj.draw_shape()
+                        obj.drawn = True
+                        obj.on_release()
                         drawn_obj.add_object(obj)
                     self.canvas.drawn_objects.append(drawn_obj)
                 elif obj_info["type"] == "primitive":
@@ -500,9 +716,10 @@ class DrawingApp:
                     obj.x1, obj.y1, obj.x2, obj.y2 = coordinates
                     obj.color = color
                     obj.draw_shape()
-                    drawn_obj = DrawnObject()
-                    drawn_obj.add_object(obj)
-                    self.canvas.drawn_objects.append(drawn_obj)
+                    obj.on_release()
+                    # drawn_obj = DrawnObject(self.canvas)
+                    # drawn_obj.add_object(obj)
+                    # self.canvas.drawn_objects.append(drawn_obj)
             print("Drawing imported successfully.")
 
 
@@ -510,7 +727,7 @@ class FileHandler:
     @staticmethod
     def save_to_file(drawn_objects, filename):
         try:
-            with open(filename, 'wb') as file:
+            with open(filename, "wb") as file:
                 pickle.dump(drawn_objects, file)
             print("Drawing saved successfully.")
         except Exception as e:
@@ -519,7 +736,7 @@ class FileHandler:
     @staticmethod
     def import_from_file(filename):
         try:
-            with open(filename, 'rb') as file:
+            with open(filename, "rb") as file:
                 drawn_objects = pickle.load(file)
             print("Drawing imported successfully.")
             return drawn_objects
