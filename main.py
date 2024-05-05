@@ -1,6 +1,7 @@
 import tkinter as tk
 import pickle
 from tkinter import filedialog
+from tkinter import messagebox
 
 from shapes_and_drawn_object import Rectangle, Line
 from shapes_and_drawn_object import DrawnObject
@@ -23,11 +24,14 @@ class DrawingApp:
 
         self.saved_once = False
         self.current_save_target_file = ""
+        self.unsaved_changes = False
 
         self.toolbar.pack(side=tk.LEFT, fill=tk.Y)
         self.canvas.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
 
         self.master.bind("<Configure>", self.on_resize)
+        
+        self.master.protocol("WM_DELETE_WINDOW", self.handle_window_close)
 
     def on_resize(self, event):
         self.canvas.resize_canvas(event)
@@ -179,6 +183,22 @@ class DrawingApp:
                 file.write(f"{indent_str}<group>\n")
                 self.export_objects_to_xml(drawn_obj.objects, file, indent + 2)
                 file.write(f"{indent_str}</group>\n")
+                
+    
+
+    def handle_window_close(self):
+        if self.unsaved_changes:
+            response = messagebox.askyesnocancel(
+				"Unsaved Changes",
+				"There are unsaved changes. Do you want to save them before importing?",
+			)
+            if response == messagebox.YES:
+                self.toolbar.save_drawing()
+                self.app.unsaved_changes = False
+                print("Saved Changes!")
+            elif response == messagebox.CANCEL:
+                pass
+        self.master.destroy()
 
 def main():
             

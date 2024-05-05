@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import filedialog
 from shapes_and_drawn_object import *
 
+from tkinter import messagebox
+
 class Toolbar(tk.Frame):
     def __init__(self, app, master, drawingSpace, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -26,8 +28,11 @@ class Toolbar(tk.Frame):
         self.button_import = tk.Button(
             self, text="Import", command=self.import_drawing, width=10
         )
-        self.button_import = tk.Button(
+        self.button_export_xml = tk.Button(
             self, text="Export to XML", command=self.export_to_xml, width=10
+        )
+        self.button_import_xml = tk.Button(
+            self, text="Import from XML", command=self.import_from_xml, width=10
         )
 
         self.button_line.pack(fill=tk.X)
@@ -35,15 +40,19 @@ class Toolbar(tk.Frame):
         self.button_save.pack(fill=tk.X)
         self.button_save_as.pack(fill=tk.X)
         self.button_import.pack(fill=tk.X)
+        self.button_export_xml.pack(fill=tk.X)
+        self.button_import_xml.pack(fill=tk.X)
         tk.Label(self, text="").pack(fill=tk.X)
 
     def draw_line(self):
         self.drawingSpace.on_click()
         Line(self.drawingSpace)
+        self.app.unsaved_changes = True
 
     def draw_rectangle(self):
         self.drawingSpace.on_click()
         Rectangle(self.drawingSpace)
+        self.app.unsaved_changes = True
 
     def save_drawing(self):
 		# If already saved once, just save
@@ -56,6 +65,7 @@ class Toolbar(tk.Frame):
                 self.app.current_save_target_file = filename
         if filename:
             self.app.save_drawing(filename)
+            self.app.unsaved_changes = False
 
     def save_as_drawing(self):
         filename = tk.filedialog.asksaveasfilename(defaultextension=".dat")
@@ -63,17 +73,35 @@ class Toolbar(tk.Frame):
             self.saved_once = True
             self.app.current_save_target_file = filename
             self.app.save_drawing(filename)
+            self.app.unsaved_changes = False
 
     def import_drawing(self):
+        if self.app.unsaved_changes:
+            response = messagebox.askyesnocancel(
+				"Unsaved Changes",
+				"There are unsaved changes. Do you want to save them before importing?",
+			)
+            if response == messagebox.YES:
+                self.toolbar.save_drawing()
+                self.app.unsaved_changes = False
+            elif response == messagebox.CANCEL:
+                pass
+
         filename = tk.filedialog.askopenfilename(defaultextension=".dat")
         if filename:
             self.app.import_drawing(filename)
             self.app.current_save_target_file = filename
+            self.app.unsaved_changes = False
             
     def export_to_xml(self):
         filename = tk.filedialog.asksaveasfilename(defaultextension=".xml")
         if filename:
             self.app.export_to_xml(filename)
+    
+    def import_from_xml(self):
+        filename = tk.filedialog.askopenfilename(defaultextension=".xml")
+        if filename:
+            self.app.import_from_xml(filename)
 
 class ShapeToolbar(tk.Frame):
     def __init__(self, master, app, *args, **kwargs):
@@ -102,12 +130,15 @@ class ShapeToolbar(tk.Frame):
     def delete_object(self):
         self.app.canvas.selected_objects[0].delete()
         self.close()
+        self.app.unsaved_changes = True
 
     def copy_object(self):
         self.app.canvas.selected_objects[0].copy()
+        self.app.unsaved_changes = True
 
     def move_object(self):
         self.app.canvas.selected_objects[0].move()
+        self.app.unsaved_changes = True
 
     def edit_object(self):
         edit_frame = tk.Frame(self, pady=10, borderwidth=10, padx=10)
@@ -115,6 +146,7 @@ class ShapeToolbar(tk.Frame):
         tk.Label(edit_frame, text="Edit Options", pady=10).pack(fill=tk.X)
 
         self.app.canvas.selected_objects[0].objects[0].edit(edit_frame)
+        self.app.unsaved_changes = True
 
     def close(self):
         self.destroy()
@@ -139,6 +171,9 @@ class SelectionToolbar(tk.Frame):
             new_obj.add_object(obj)
             self.app.canvas.drawn_objects.remove(obj)
         self.app.canvas.drawn_objects.append(new_obj)
+        
+        self.app.unsaved_changes = True
+        
         self.close()
 
     def close(self):
@@ -178,21 +213,26 @@ class GroupToolbar(tk.Frame):
 
     def ungroup_once(self):
         self.app.canvas.selected_objects[0].ungroup_once()
+        self.app.unsaved_changes = True
         self.close()
 
     def ungroup_all(self):
         self.app.canvas.selected_objects[0].ungroup()
+        self.app.unsaved_changes = True
         self.close()
 
     def delete_group(self):
         self.app.canvas.selected_objects[0].delete()
+        self.app.unsaved_changes = True
         self.close()
 
     def copy_group(self):
         self.app.canvas.selected_objects[0].copy()
+        self.app.unsaved_changes = True
 
     def move_group(self):
         self.app.canvas.selected_objects[0].move()
+        self.app.unsaved_changes = True
 
     def close(self):
         self.destroy()
