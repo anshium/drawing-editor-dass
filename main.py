@@ -31,11 +31,19 @@ class DrawingApp:
         for drawn_obj in drawn_objects:
             if drawn_obj.objects[0].is_primitive:
                 obj = drawn_obj.objects[0]
-                append_list.append({
-                    "type": obj.shape_name,
-                    "coordinates": [obj.x1, obj.y1, obj.x2, obj.y2],
-                    "color": obj.color
-                })
+                if obj.shape_name == "Line":
+                    append_list.append({
+                        "type": obj.shape_name,
+                        "coordinates": [obj.x1, obj.y1, obj.x2, obj.y2],
+                        "color": obj.color
+                    })
+                elif obj.shape_name == "Rectangle":
+                    append_list.append({
+                        "type": obj.shape_name,
+                        "coordinates": [obj.x1, obj.y1, obj.x2, obj.y2],
+                        "color": obj.color,
+                        "corner_style": obj.corner_style
+                    })
             else:
                 append_list.append({
                     "type": "group",
@@ -51,11 +59,19 @@ class DrawingApp:
         for drawn_obj in self.canvas.drawn_objects:
             if drawn_obj.objects[0].is_primitive:
                 actual_object = drawn_obj.objects[0]
-                primitives_info.append({
-                    "type": actual_object.shape_name,
-                    "coordinates": [actual_object.x1, actual_object.y1, actual_object.x2, actual_object.y2],
-                    "color": actual_object.color
-                })
+                if actual_object.shape_name == "Line":
+                    primitives_info.append({
+                        "type": actual_object.shape_name,
+                        "coordinates": [actual_object.x1, actual_object.y1, actual_object.x2, actual_object.y2],
+                        "color": actual_object.color
+                    })
+                elif actual_object.shape_name == "Rectangle":
+                    primitives_info.append({
+                        "type": actual_object.shape_name,
+                        "coordinates": [actual_object.x1, actual_object.y1, actual_object.x2, actual_object.y2],
+                        "color": actual_object.color,
+                        "corner_style": actual_object.corner_style
+                    })
             else:
                 group_info = {
                         "type": "group",
@@ -100,12 +116,14 @@ class DrawingApp:
         color = obj_info["color"]
         if shape_type == "Rectangle":
             obj = Rectangle(self.canvas)
+            obj.corner_style = obj_info["corner_style"]
         elif shape_type == "Line":
             obj = Line(self.canvas)
         else:
             return None
         obj.x1, obj.y1, obj.x2, obj.y2 = coordinates
         obj.color = color
+        
         obj.draw_shape()
         obj.drawn = True
         obj.on_release()
