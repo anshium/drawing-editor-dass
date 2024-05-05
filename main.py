@@ -190,7 +190,7 @@ class DrawingApp:
         if self.unsaved_changes:
             response = messagebox.askyesnocancel(
 				"Unsaved Changes",
-				"There are unsaved changes. Do you want to save them before importing?",
+				"There are unsaved changes. Do you want to save them before closing the application?",
 			)
             if response == messagebox.YES:
                 self.toolbar.save_drawing()
