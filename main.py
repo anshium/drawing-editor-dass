@@ -677,73 +677,66 @@ class DrawingApp:
     
     
     def save_drawing(self, filename):
-        drawn_objects_info = []
-        
-        print(self.canvas.drawn_objects[0].is_primitive)
+        primitives_info = []
+        groups_info = []
         
         for drawn_obj in self.canvas.drawn_objects:
-            obj_info = {
-                "type": "group" if not drawn_obj.is_primitive else "primitive",
-                "objects": [],
-            }
-            
-            if not drawn_obj.objects[0].is_primitive:
-                obj_info["objects"].extend(self.to_append_routine(drawn_obj.objects))
-
-            else:
-                obj = drawn_obj.objects[0]
-                obj_info["objects"].append({
-                    "type": obj.shape_name,
-                    "coordinates": [obj.x1, obj.y1, obj.x2, obj.y2],
-                    "color": obj.color
+            if drawn_obj.objects[0].is_primitive:
+                primitives_info.append({
+                    "type": drawn_obj.shape_name,
+                    "coordinates": [drawn_obj.x1, drawn_obj.y1, drawn_obj.x2, drawn_obj.y2],
+                    "color": drawn_obj.color
                 })
-            drawn_objects_info.append(obj_info)
+            else:
+                group_info = self.to_append_routine(drawn_obj.objects)
+                groups_info.append(group_info)
+
+        drawing_info = {"primitives": primitives_info, "groups": groups_info[0]}
 
         with open(filename, "wb") as file:
-            pickle.dump(drawn_objects_info, file)
+            print(drawing_info)
+            pickle.dump(drawing_info, file)
         print("Drawing saved successfully.")
 
     def import_drawing(self, filename):
         with open(filename, "rb") as file:
-            drawn_objects_info = pickle.load(file)
-        if drawn_objects_info:
+            drawing_info = pickle.load(file)
+            print(drawing_info)
+        if drawing_info:
             # Clear Canvas
             self.canvas.delete("all")
-            for obj_info in drawn_objects_info:
-                if obj_info["type"] == "group":
-                    drawn_obj = DrawnObject(self.canvas)
-                    for obj_data in obj_info["objects"]:
-                        shape_type = obj_data["type"]
-                        coordinates = obj_data["coordinates"]
-                        color = obj_data["color"]
-                        if shape_type == "Rectangle":
-                            obj = Rectangle(self.canvas)
-                        elif shape_type == "Line":
-                            obj = Line(self.canvas)
-                        obj.x1, obj.y1, obj.x2, obj.y2 = coordinates
-                        obj.color = color
-                        obj.draw_shape()
-                        obj.drawn = True
-                        obj.on_release()
-                        drawn_obj.add_object(obj)
-                    self.canvas.drawn_objects.append(drawn_obj)
-                elif obj_info["type"] == "primitive":
-                    obj_data = obj_info["objects"][0]
-                    shape_type = obj_data["type"]
-                    coordinates = obj_data["coordinates"]
-                    color = obj_data["color"]
-                    if shape_type == "Rectangle":
-                        obj = Rectangle(self.canvas)
-                    elif shape_type == "Line":
-                        obj = Line(self.canvas)
-                    obj.x1, obj.y1, obj.x2, obj.y2 = coordinates
-                    obj.color = color
-                    obj.draw_shape()
-                    obj.on_release()
-                    # drawn_obj = DrawnObject(self.canvas)
-                    # drawn_obj.add_object(obj)
-                    # self.canvas.drawn_objects.append(drawn_obj)
+
+            for primitive_info in drawing_info["primitives"]:
+                obj = self.create_object_from_info(primitive_info)
+                if obj:
+                    self.canvas.drawn_objects.append(obj)
+
+            for group_info in drawing_info["groups"]:
+                group_obj = DrawnObject(self.canvas)
+                for obj_info in group_info["objects"]:
+                    obj = self.create_object_from_info(obj_info)
+                    if obj:
+                        group_obj.add_object(obj)
+                self.canvas.drawn_objects.append(group_obj)
+
             print("Drawing imported successfully.")
+            
+    def create_object_from_info(self, obj_info):
+        shape_type = obj_info["type"]
+        coordinates = obj_info["coordinates"]
+        color = obj_info["color"]
+        if shape_type == "Rectangle":
+            obj = Rectangle(self.canvas)
+        elif shape_type == "Line":
+            obj = Line(self.canvas)
+        else:
+            return None
+        obj.x1, obj.y1, obj.x2, obj.y2 = coordinates
+        obj.color = color
+        obj.draw_shape()
+        obj.drawn = True
+        obj.on_release()
+        return obj
 
 
 class FileHandler:
