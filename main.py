@@ -8,6 +8,7 @@ from DrawingSpace import DrawingSpace
 from toolbar import Toolbar
 from file_handler import FileHandler
 
+import sys
 
 class DrawingApp:
     def __init__(self, master):
@@ -135,9 +136,26 @@ class DrawingApp:
         return drawobj
 
 def main():
+            
+    
     root = tk.Tk()
     app = DrawingApp(root)
+    
+    if len(sys.argv) > 1:
+        filename = sys.argv[1]
+        try:
+            app.import_drawing(filename)
+            app.current_save_target_file = filename
+            app.saved_once = True
+        except:
+            print("Import not possible, Using this file to save data. Clearing existing data")
+            with open(filename, 'w') as f:
+                app.current_save_target_file = filename
+                app.saved_once = True
+    
     root.mainloop()
+    
+            
 
 
 if __name__ == "__main__":
