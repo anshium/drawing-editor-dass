@@ -2,6 +2,7 @@ import tkinter as tk
 import pickle
 from tkinter import filedialog
 
+
 class Shape:
     def __init__(self, drawingSpace):
         self.drawingSpace = drawingSpace
@@ -201,7 +202,6 @@ class Line(Shape):
         self.corner_style = "Square"
         self.x1 = None
         self.y1 = None
-        self.is_primitive = False
 
     def draw_shape(self, event=None):
         if self.object:
@@ -596,6 +596,8 @@ class DrawingSpace(tk.Canvas):
         self.draw_toolbar()
 
     def inside_rect(self, obj, box):
+        if box[2] is None or box[3] is None:
+            return False
         if (
             min(obj[0], obj[2]) >= min(box[0], box[2])
             and max(obj[0], obj[2]) <= max(box[0], box[2])
@@ -648,48 +650,15 @@ class DrawingApp:
 
     def on_resize(self, event):
         self.canvas.resize_canvas(event)
-        
-    def to_append_routine(self, drawn_objects):
-        append_list = []
-        for drawn_obj in drawn_objects:
-            if drawn_obj.is_primitive:
-                obj = drawn_obj
-                append_list.append({
-                    "type": obj.shape_name,
-                    "coordinates": [obj.x1, obj.y1, obj.x2, obj.y2],
-                    "color": obj.color
-                })
-            else:
-                if isinstance(drawn_obj, DrawnObject):
-                    append_list.append({
-                        "type": "group",
-                        "objects": self.to_append_routine(drawn_obj.objects)
-                    })
-                else:
-                    append_list.append({
-                        "type": drawn_obj.shape_name,
-                        "coordinates": [drawn_obj.x1, drawn_obj.y1, drawn_obj.x2, drawn_obj.y2],
-                        "color": drawn_obj.color
-                    })
-        return append_list
-    
-    
+
     def save_drawing(self, filename):
         drawn_objects_info = []
-        
-        print(self.canvas.drawn_objects[0].is_primitive)
-        
         for drawn_obj in self.canvas.drawn_objects:
             obj_info = {
                 "type": "group" if not drawn_obj.is_primitive else "primitive",
                 "objects": [],
             }
-            
-            if(drawn_obj.is_primitive):
-                print("Primitive")
-            
-            if not drawn_obj.is_primitive:
-                obj_info["objects"].extend(self.to_append_routine(drawn_obj.objects))
+            if not drawn_obj.objects[0].is_primitive:
                 for obj in drawn_obj.objects:
                     obj_info["objects"].append(
                         {
@@ -700,12 +669,13 @@ class DrawingApp:
                     )
             else:
                 obj = drawn_obj.objects[0]
-                print(type(obj))
-                obj_info["objects"].append({
-                    "type": obj.shape_name,
-                    "coordinates": [obj.x1, obj.y1, obj.x2, obj.y2],
-                    "color": obj.color
-                })
+                obj_info["objects"].append(
+                    {
+                        "type": obj.shape_name,
+                        "coordinates": [obj.x1, obj.y1, obj.x2, obj.y2],
+                        "color": obj.color,
+                    }
+                )
             drawn_objects_info.append(obj_info)
 
         with open(filename, "wb") as file:
