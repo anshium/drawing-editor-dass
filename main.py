@@ -596,7 +596,7 @@ class DrawingSpace(tk.Canvas):
         self.draw_toolbar()
 
     def inside_rect(self, obj, box):
-        if box[2] is None or box[3] is None:
+        if None in obj or None in box:
             return False
         if (
             min(obj[0], obj[2]) >= min(box[0], box[2])
@@ -654,32 +654,25 @@ class DrawingApp:
     def to_append_routine(self, drawn_objects):
         append_list = []
         for drawn_obj in drawn_objects:
-            if drawn_obj.is_primitive:
-                obj = drawn_obj
+            if drawn_obj.objects[0].is_primitive:
+                obj = drawn_obj.objects[0]
                 append_list.append({
                     "type": obj.shape_name,
                     "coordinates": [obj.x1, obj.y1, obj.x2, obj.y2],
                     "color": obj.color
                 })
             else:
-                if isinstance(drawn_obj, DrawnObject):
-                    append_list.append({
-                        "type": "group",
-                        "objects": self.to_append_routine(drawn_obj.objects)
-                    })
-                else:
-                    append_list.append({
-                        "type": drawn_obj.shape_name,
-                        "coordinates": [drawn_obj.x1, drawn_obj.y1, drawn_obj.x2, drawn_obj.y2],
-                        "color": drawn_obj.color
-                    })
+                append_list.append({
+                    "type": "group",
+                    "objects": self.to_append_routine(drawn_obj.objects)
+                })
         return append_list
     
     
     def save_drawing(self, filename):
         primitives_info = []
         groups_info = []
-        
+                
         for drawn_obj in self.canvas.drawn_objects:
             if drawn_obj.objects[0].is_primitive:
                 actual_object = drawn_obj.objects[0]
@@ -689,10 +682,14 @@ class DrawingApp:
                     "color": actual_object.color
                 })
             else:
-                group_info = self.to_append_routine(drawn_obj.objects)
+                group_info = {
+                        "type": "group",
+                        "objects": self.to_append_routine(drawn_obj.objects)
+                    }
+                
                 groups_info.append(group_info)
 
-        drawing_info = {"primitives": primitives_info, "groups": groups_info[0]}
+        drawing_info = {"primitives": primitives_info, "groups": groups_info}
 
         with open(filename, "wb") as file:
             print(drawing_info)
@@ -737,7 +734,9 @@ class DrawingApp:
         obj.draw_shape()
         obj.drawn = True
         obj.on_release()
-        return obj
+        drawobj = DrawnObject(self.canvas)
+        drawobj.add_object(obj)
+        return drawobj
 
 
 class FileHandler:
