@@ -682,10 +682,11 @@ class DrawingApp:
         
         for drawn_obj in self.canvas.drawn_objects:
             if drawn_obj.objects[0].is_primitive:
+                actual_object = drawn_obj.objects[0]
                 primitives_info.append({
-                    "type": drawn_obj.shape_name,
-                    "coordinates": [drawn_obj.x1, drawn_obj.y1, drawn_obj.x2, drawn_obj.y2],
-                    "color": drawn_obj.color
+                    "type": actual_object.shape_name,
+                    "coordinates": [actual_object.x1, actual_object.y1, actual_object.x2, actual_object.y2],
+                    "color": actual_object.color
                 })
             else:
                 group_info = self.to_append_routine(drawn_obj.objects)
