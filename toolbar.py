@@ -26,6 +26,9 @@ class Toolbar(tk.Frame):
         self.button_import = tk.Button(
             self, text="Import", command=self.import_drawing, width=10
         )
+        self.button_import = tk.Button(
+            self, text="Export to XML", command=self.export_to_xml, width=10
+        )
 
         self.button_line.pack(fill=tk.X)
         self.button_rectangle.pack(fill=tk.X)
@@ -66,6 +69,11 @@ class Toolbar(tk.Frame):
         if filename:
             self.app.import_drawing(filename)
             self.app.current_save_target_file = filename
+            
+    def export_to_xml(self):
+        filename = tk.filedialog.asksaveasfilename(defaultextension=".xml")
+        if filename:
+            self.app.export_to_xml(filename)
 
 class ShapeToolbar(tk.Frame):
     def __init__(self, master, app, *args, **kwargs):

@@ -8,6 +8,8 @@ from DrawingSpace import DrawingSpace
 from toolbar import Toolbar
 from file_handler import FileHandler
 
+import xml.etree.ElementTree as ET
+
 import sys
 
 class DrawingApp:
@@ -134,6 +136,49 @@ class DrawingApp:
         drawobj = DrawnObject(self.canvas)
         drawobj.add_object(obj)
         return drawobj
+    
+    def export_to_xml(self, filename):
+        with open(filename, "w") as file:
+            file.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+            file.write("<drawing>\n")
+            self.export_objects_to_xml(self.canvas.drawn_objects, file)
+            file.write("</drawing>\n")
+        print("Drawing exported to XML successfully.")
+
+    def export_objects_to_xml(self, drawn_objects, file, indent=0):
+        indent_str = " " * indent
+        for drawn_obj in drawn_objects:
+            if drawn_obj.objects[0].is_primitive:
+                actual_object = drawn_obj.objects[0]
+                if actual_object.shape_name == "Line":
+                    file.write(f"{indent_str}<line>\n")
+                    file.write(f"{indent_str}  <begin>\n")
+                    file.write(f"{indent_str}    <x>{actual_object.x1}</x>\n")
+                    file.write(f"{indent_str}    <y>{actual_object.y1}</y>\n")
+                    file.write(f"{indent_str}  </begin>\n")
+                    file.write(f"{indent_str}  <end>\n")
+                    file.write(f"{indent_str}    <x>{actual_object.x2}</x>\n")
+                    file.write(f"{indent_str}    <y>{actual_object.y2}</y>\n")
+                    file.write(f"{indent_str}  </end>\n")
+                    file.write(f"{indent_str}  <color>{actual_object.color}</color>\n")
+                    file.write(f"{indent_str}</line>\n")
+                elif actual_object.shape_name == "Rectangle":
+                    file.write(f"{indent_str}<rectangle>\n")
+                    file.write(f"{indent_str}  <upper-left>\n")
+                    file.write(f"{indent_str}    <x>{actual_object.x1}</x>\n")
+                    file.write(f"{indent_str}    <y>{actual_object.y1}</y>\n")
+                    file.write(f"{indent_str}  </upper-left>\n")
+                    file.write(f"{indent_str}  <lower-right>\n")
+                    file.write(f"{indent_str}    <x>{actual_object.x2}</x>\n")
+                    file.write(f"{indent_str}    <y>{actual_object.y2}</y>\n")
+                    file.write(f"{indent_str}  </lower-right>\n")
+                    file.write(f"{indent_str}  <color>{actual_object.color}</color>\n")
+                    file.write(f"{indent_str}  <corner>{actual_object.corner_style}</corner>\n")
+                    file.write(f"{indent_str}</rectangle>\n")
+            else:
+                file.write(f"{indent_str}<group>\n")
+                self.export_objects_to_xml(drawn_obj.objects, file, indent + 2)
+                file.write(f"{indent_str}</group>\n")
 
 def main():
             

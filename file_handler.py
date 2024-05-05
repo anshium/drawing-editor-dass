@@ -23,3 +23,6 @@ class FileHandler:
         except Exception as e:
             print(f"Error importing drawing: {e}")
             return None
+        
+    def export_to_xml():
+        pass
