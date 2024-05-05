@@ -26,16 +26,16 @@ class Toolbar(tk.Frame):
             self, text="Save As", command=self.save_as_drawing, width=10
         )
         self.button_import = tk.Button(
-            self, text="Import", command=self.import_drawing, width=10
+            self, text="Open", command=self.import_drawing, width=10
+        )
+        self.button_export_ascii = tk.Button(
+            self, text="Save as ASCII", command=self.export_to_ascii, width=10
+        )
+        self.button_import_ascii = tk.Button(
+            self, text="Open from ASCII", command=self.import_from_ascii, width=10
         )
         self.button_export_xml = tk.Button(
             self, text="Export to XML", command=self.export_to_xml, width=10
-        )
-        self.button_export_ascii = tk.Button(
-            self, text="Export to ASCII", command=self.export_to_ascii, width=10
-        )
-        self.button_import_ascii = tk.Button(
-            self, text="Import from ASCII", command=self.import_from_ascii, width=10
         )
 
         self.button_line.pack(fill=tk.X)
@@ -43,9 +43,9 @@ class Toolbar(tk.Frame):
         self.button_save.pack(fill=tk.X)
         self.button_save_as.pack(fill=tk.X)
         self.button_import.pack(fill=tk.X)
-        self.button_export_xml.pack(fill=tk.X)
         self.button_export_ascii.pack(fill=tk.X)
         self.button_import_ascii.pack(fill=tk.X)
+        self.button_export_xml.pack(fill=tk.X)
         tk.Label(self, text="").pack(fill=tk.X)
 
     def draw_line(self):
