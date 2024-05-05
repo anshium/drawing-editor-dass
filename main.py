@@ -18,6 +18,9 @@ class DrawingApp:
         self.canvas = DrawingSpace(master, self, bg="white", width=600, height=600)
         self.toolbar = Toolbar(self, master, self.canvas, width=150, height=600)
 
+        self.saved_once = False
+        self.current_save_target_file = ""
+
         self.toolbar.pack(side=tk.LEFT, fill=tk.Y)
         self.canvas.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
 
