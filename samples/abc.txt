@@ -1,0 +1,6 @@
+line 157 62 266 341 Black
+rect 76 260 201 441 Black Square
+begin
+  line 97 96 371 245 Black
+  rect 139 96 298 242 Black Square
+end

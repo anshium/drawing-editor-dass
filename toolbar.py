@@ -31,6 +31,12 @@ class Toolbar(tk.Frame):
         self.button_export_xml = tk.Button(
             self, text="Export to XML", command=self.export_to_xml, width=10
         )
+        self.button_export_ascii = tk.Button(
+            self, text="Export to ASCII", command=self.export_to_ascii, width=10
+        )
+        self.button_import_ascii = tk.Button(
+            self, text="Import from ASCII", command=self.import_from_ascii, width=10
+        )
 
         self.button_line.pack(fill=tk.X)
         self.button_rectangle.pack(fill=tk.X)
@@ -38,6 +44,8 @@ class Toolbar(tk.Frame):
         self.button_save_as.pack(fill=tk.X)
         self.button_import.pack(fill=tk.X)
         self.button_export_xml.pack(fill=tk.X)
+        self.button_export_ascii.pack(fill=tk.X)
+        self.button_import_ascii.pack(fill=tk.X)
         tk.Label(self, text="").pack(fill=tk.X)
 
     def draw_line(self):
@@ -93,6 +101,16 @@ class Toolbar(tk.Frame):
         filename = tk.filedialog.asksaveasfilename(defaultextension=".xml")
         if filename:
             self.app.export_to_xml(filename)
+        
+    def export_to_ascii(self):
+        filename = tk.filedialog.asksaveasfilename(defaultextension=".txt")
+        if filename:
+            self.app.export_to_ascii(filename)
+            
+    def import_from_ascii(self):
+        filename = tk.filedialog.askopenfilename(defaultextension=".txt")
+        if filename:
+            self.app.import_from_ascii(filename)
 
 class ShapeToolbar(tk.Frame):
     def __init__(self, master, app, *args, **kwargs):

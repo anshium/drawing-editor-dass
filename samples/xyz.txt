@@ -1,0 +1,6 @@
+begin
+  line 287 101 382 279 Black
+  rect 201 155 354 293 Black Square
+end
+line 102 299 217 482 Red
+rect 366 354 511 485 Black Square
