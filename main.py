@@ -2,7 +2,6 @@ import tkinter as tk
 import pickle
 from tkinter import filedialog
 
-
 class Shape:
     def __init__(self, drawingSpace):
         self.drawingSpace = drawingSpace
@@ -648,7 +647,24 @@ class DrawingApp:
 
     def on_resize(self, event):
         self.canvas.resize_canvas(event)
-
+        
+    def to_append_routine(self, drawn_objects):
+        append_list = []
+        for drawn_obj in drawn_objects:
+            if drawn_obj.is_primitive:
+                obj = drawn_obj
+                
+                return append_list.append({
+                    "type": obj.shape_name,
+                    "coordinates": [obj.x1, obj.y1, obj.x2, obj.y2],
+                    "color": obj.color
+                })
+            else:
+                append_list.append(self.to_append_routine(drawn_obj.objects))
+                
+        return append_list
+    
+    
     def save_drawing(self, filename):
         drawn_objects_info = []
         for drawn_obj in self.canvas.drawn_objects:
@@ -657,6 +673,7 @@ class DrawingApp:
                 "objects": [],
             }
             if not drawn_obj.is_primitive:
+                obj_info["objects"].extend(self.to_append_routine(drawn_obj.objects))
                 for obj in drawn_obj.objects:
                     obj_info["objects"].append(
                         {
@@ -667,13 +684,12 @@ class DrawingApp:
                     )
             else:
                 obj = drawn_obj.objects[0]
-                obj_info["objects"].append(
-                    {
-                        "type": obj.shape_name,
-                        "coordinates": [obj.x1, obj.y1, obj.x2, obj.y2],
-                        "color": obj.color,
-                    }
-                )
+                print(type(obj))
+                obj_info["objects"].append({
+                    "type": obj.shape_name,
+                    "coordinates": [obj.x1, obj.y1, obj.x2, obj.y2],
+                    "color": obj.color
+                })
             drawn_objects_info.append(obj_info)
 
         with open(filename, "wb") as file:
