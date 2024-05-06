@@ -17,7 +17,6 @@ class Toolbar(tk.Frame):
         self.drawing_line = False
         self.drawing_rect = False
 
-        tk.Label(self, text="Draw Shapes", pady=10).pack(fill=tk.X)
         self.button_line = tk.Button(
             self, text="Line", command=self.draw_line, width=10
         )
@@ -33,23 +32,26 @@ class Toolbar(tk.Frame):
         self.button_import = tk.Button(
             self, text="Open", command=self.import_drawing, width=10
         )
-        self.button_export_ascii = tk.Button(
-            self, text="Save Compressed", command=self.save_drawing, width=10
+        self.button_export_pickle = tk.Button(
+            self, text="Save Compressed", command=self.export_to_pickle, width=10
         )
-        self.button_import_ascii = tk.Button(
-            self, text="Open from Compressed", command=self.import_drawing, width=10
+        self.button_import_pickle = tk.Button(
+            self, text="Open from Compressed", command=self.import_from_pickle, width=10
         )
         self.button_export_xml = tk.Button(
             self, text="Export to XML", command=self.export_to_xml, width=10
         )
 
+        tk.Label(self, text="Draw Shapes", pady=10).pack(fill=tk.X)
         self.button_line.pack(fill=tk.X)
         self.button_rectangle.pack(fill=tk.X)
+        tk.Label(self, text="File Handler", pady=10).pack(fill=tk.X)
         self.button_save.pack(fill=tk.X)
         self.button_save_as.pack(fill=tk.X)
         self.button_import.pack(fill=tk.X)
-        self.button_export_ascii.pack(fill=tk.X)
-        self.button_import_ascii.pack(fill=tk.X)
+        tk.Label(self, text="More Options", pady=10).pack(fill=tk.X)
+        self.button_export_pickle.pack(fill=tk.X)
+        self.button_import_pickle.pack(fill=tk.X)
         self.button_export_xml.pack(fill=tk.X)
         tk.Label(self, text="").pack(fill=tk.X)
 
@@ -134,6 +136,16 @@ class Toolbar(tk.Frame):
         filename = tk.filedialog.askopenfilename(defaultextension=".txt")
         if filename:
             self.filehandler.import_from_ascii(filename)
+            
+    def export_to_pickle(self):
+        filename = tk.filedialog.askopenfilename(defaultextension=".txt")
+        if filename:
+            self.filehandler.save_drawing(filename)
+            
+    def import_from_pickle(self):
+        filename = tk.filedialog.askopenfilename(defaultextension=".txt")
+        if filename:
+            self.filehandler.import_drawing(filename)
 
 class ShapeToolbar(tk.Frame):
     def __init__(self, master, app, *args, **kwargs):
