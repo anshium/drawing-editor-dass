@@ -1,2 +1,0 @@
-line 102 97 271 320 Black
-rect 177 149 344 307 Black Square

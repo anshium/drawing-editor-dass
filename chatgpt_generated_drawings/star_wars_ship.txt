@@ -1,0 +1,16 @@
+begin
+  rect 30 30 270 120 b s
+  rect 150 70 195 90 b s
+  rect 60 100 120 150 b s
+  rect 210 100 270 150 b s
+  line 30 30 10 70 b
+  line 270 30 290 70 b
+  line 10 70 60 70 b
+  line 290 70 240 70 b
+  line 10 70 10 150 b
+  line 290 70 290 150 b
+  line 60 70 60 150 b
+  line 240 70 240 150 b
+  line 90 110 90 150 b
+  line 210 110 210 150 b
+end

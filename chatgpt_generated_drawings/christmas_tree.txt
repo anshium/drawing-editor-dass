@@ -1,0 +1,28 @@
+begin
+  rect 180 200 220 280 b s
+  rect 170 280 230 320 b s
+  rect 160 320 240 360 b s
+  rect 150 360 250 400 b s
+  rect 140 400 260 440 b s
+  rect 130 440 270 480 b s
+  rect 120 480 280 520 b s
+  rect 110 520 290 560 b s
+  rect 100 560 300 600 b s
+  rect 190 240 210 280 g s
+  rect 180 280 220 320 g s
+  rect 170 320 230 360 g s
+  rect 160 360 240 400 g s
+  rect 150 400 250 440 g s
+  rect 140 440 260 480 g s
+  rect 130 480 270 520 g s
+  rect 120 520 280 560 g s
+  rect 110 560 290 600 g s
+  rect 170 300 180 320 g s
+  rect 160 340 170 360 g s
+  rect 150 380 160 400 g s
+  rect 140 420 150 440 g s
+  rect 130 460 140 480 g s
+  rect 120 500 130 520 g s
+  rect 110 540 120 560 g s
+  rect 100 580 110 600 g s
+end

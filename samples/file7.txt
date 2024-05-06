@@ -1,4 +1,0 @@
-begin
-  line 283 279 498 488 k
-  rect 229 312 491 486 k s
-end
