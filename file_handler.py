@@ -4,6 +4,10 @@ from shapes_and_drawn_object import *
 class FileHandler:
     def __init__(self, app) -> None:
         self.app = app
+        self.small_names_for_no_reason_at_all_dict = {"Black": "k", "Red": "r", "Green": "g", "Blue": "b"}
+        self.small_names_for_no_reason_at_all_dict_reverse = {"k": "Black", "r": "Red", "g": "Green", "b": "Blue"}
+        self.curved = {"Square": "s", "Rounded": "r"}
+        self.curved_reverse = {"s": "Square", "r": "Rounded"}
     
     @staticmethod
     def save_to_file(drawn_objects, filename):
@@ -191,9 +195,9 @@ class FileHandler:
         if drawn_obj.objects[0].is_primitive:
             actual_object = drawn_obj.objects[0]
             if actual_object.shape_name == "Line":
-                file.write(f"{indent}line {actual_object.x1} {actual_object.y1} {actual_object.x2} {actual_object.y2} {actual_object.color}\n")
+                file.write(f"{indent}line {actual_object.x1} {actual_object.y1} {actual_object.x2} {actual_object.y2} {self.small_names_for_no_reason_at_all_dict[actual_object.color]}\n")
             elif actual_object.shape_name == "Rectangle":
-                file.write(f"{indent}rect {actual_object.x1} {actual_object.y1} {actual_object.x2} {actual_object.y2} {actual_object.color} {actual_object.corner_style}\n")
+                file.write(f"{indent}rect {actual_object.x1} {actual_object.y1} {actual_object.x2} {actual_object.y2} {self.small_names_for_no_reason_at_all_dict[actual_object.color]} {self.curved[actual_object.corner_style]}\n")
         else:
             file.write(f"{indent}begin\n")
             for obj in drawn_obj.objects:
@@ -215,7 +219,7 @@ class FileHandler:
                 line_obj = Line(self.app.canvas)
                 line_obj.x1, line_obj.y1 = int(x1), int(y1)
                 line_obj.x2, line_obj.y2 = int(x2), int(y2)
-                line_obj.color = color
+                line_obj.color = self.small_names_for_no_reason_at_all_dict_reverse[color]
                 line_obj.draw_shape()
                 line_obj.drawn = True
                 line_obj.on_release()
@@ -231,8 +235,8 @@ class FileHandler:
                 rect_obj = Rectangle(self.app.canvas)
                 rect_obj.x1, rect_obj.y1 = int(x1), int(y1)
                 rect_obj.x2, rect_obj.y2 = int(x2), int(y2)
-                rect_obj.color = color
-                rect_obj.corner_style = corner_style
+                rect_obj.color = self.small_names_for_no_reason_at_all_dict_reverse[color]
+                rect_obj.corner_style = self.curved_reverse[corner_style]
                 rect_obj.draw_shape()
                 rect_obj.drawn = True
                 rect_obj.on_release()
