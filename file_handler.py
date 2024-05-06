@@ -8,33 +8,6 @@ class FileHandler:
         self.small_names_for_no_reason_at_all_dict_reverse = {"k": "Black", "r": "Red", "g": "Green", "b": "Blue"}
         self.curved = {"Square": "s", "Rounded": "r"}
         self.curved_reverse = {"s": "Square", "r": "Rounded"}
-    
-    @staticmethod
-    def save_to_file(drawn_objects, filename):
-        try:
-            with open(filename, "wb") as file:
-                pickle.dump(drawn_objects, file)
-            print("Drawing saved successfully.")
-        except Exception as e:
-            print(f"Error saving drawing: {e}")
-
-    @staticmethod
-    def import_from_file(filename):
-        try:
-            with open(filename, "rb") as file:
-                drawn_objects = pickle.load(file)
-            print("Drawing imported successfully.")
-            return drawn_objects
-        except FileNotFoundError:
-            print("File not found.")
-            return None
-        except Exception as e:
-            print(f"Error importing drawing: {e}")
-            return None
-        
-    def export_to_xml():
-        pass
-
         
     def to_append_routine(self, drawn_objects):
         append_list = []
