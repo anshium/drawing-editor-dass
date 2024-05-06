@@ -1,0 +1,49 @@
+begin
+  rect 120 80 180 180 b s
+  rect 100 100 140 140 b s
+  rect 160 100 200 140 b s
+  rect 100 140 110 160 b s
+  rect 190 140 200 160 b s
+  rect 90 160 210 180 b s
+  rect 80 180 220 220 b s
+  rect 70 220 230 260 b s
+  rect 60 260 240 300 b s
+  rect 50 300 110 340 b s
+  rect 200 300 260 340 b s
+  rect 50 340 60 400 b s
+  rect 120 340 130 400 b s
+  rect 190 340 200 400 b s
+  rect 230 340 240 400 b s
+  rect 40 400 250 480 b s
+  rect 70 480 100 520 b s
+  rect 170 480 200 520 b s
+  rect 130 520 140 580 b s
+  rect 160 520 170 580 b s
+  rect 120 580 150 600 b s
+  rect 140 480 160 520 g s
+  rect 90 480 110 520 g s
+  rect 210 480 230 520 g s
+  rect 80 80 120 120 g s
+  rect 180 80 220 120 g s
+  rect 110 160 190 180 g s
+  rect 90 180 110 200 g s
+  rect 190 180 210 200 g s
+  rect 70 220 90 240 g s
+  rect 210 220 230 240 g s
+  rect 60 260 80 280 g s
+  rect 220 260 240 280 g s
+  rect 50 300 60 320 g s
+  rect 230 300 240 320 g s
+  rect 70 480 90 500 g s
+  rect 170 480 190 500 g s
+  rect 130 520 140 560 g s
+  rect 160 520 170 560 g s
+  line 100 140 90 160 b
+  line 200 140 210 160 b
+  line 80 180 70 220 b
+  line 220 180 230 220 b
+  line 60 260 50 300 b
+  line 240 260 250 300 b
+  line 40 400 30 420 b
+  line 260 400 270 420 b
+end
