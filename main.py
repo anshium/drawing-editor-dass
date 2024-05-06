@@ -54,10 +54,12 @@ def main():
     root = tk.Tk()
     app = DrawingApp(root)
     
+    file_handler = FileHandler(app)
+    
     if len(sys.argv) > 1:
         filename = sys.argv[1]
         try:
-            app.import_drawing(filename)
+            file_handler.import_from_ascii(filename)
             app.current_save_target_file = filename
             app.saved_once = True
         except:

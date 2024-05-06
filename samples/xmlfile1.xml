@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<drawing>
+<group>
+  <line>
+    <begin>
+      <x>154</x>
+      <y>141</y>
+    </begin>
+    <end>
+      <x>409</x>
+      <y>365</y>
+    </end>
+    <color>Black</color>
+  </line>
+  <rectangle>
+    <upper-left>
+      <x>151</x>
+      <y>136</y>
+    </upper-left>
+    <lower-right>
+      <x>443</x>
+      <y>414</y>
+    </lower-right>
+    <color>Black</color>
+    <corner>Square</corner>
+  </rectangle>
+</group>
+<line>
+  <begin>
+    <x>566</x>
+    <y>175</y>
+  </begin>
+  <end>
+    <x>617</x>
+    <y>423</y>
+  </end>
+  <color>Black</color>
+</line>
+<rectangle>
+  <upper-left>
+    <x>533</x>
+    <y>231</y>
+  </upper-left>
+  <lower-right>
+    <x>720</x>
+    <y>327</y>
+  </lower-right>
+  <color>Black</color>
+  <corner>Square</corner>
+</rectangle>
+</drawing>
