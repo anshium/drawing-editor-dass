@@ -9,8 +9,6 @@ from DrawingSpace import DrawingSpace
 from toolbar import Toolbar
 from file_handler import FileHandler
 
-import xml.etree.ElementTree as ET
-
 import sys
 
 class DrawingApp:
