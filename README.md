@@ -4,7 +4,7 @@
 
 `python.exe main.py`
 
-### Unix
+### Unix based systems
 
 `python3 main.py` or `python main.py`
 
