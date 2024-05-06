@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog
 from shapes_and_drawn_object import *
+from file_handler import FileHandler
 
 from tkinter import messagebox
 
@@ -9,6 +10,7 @@ class Toolbar(tk.Frame):
         super().__init__(master, *args, **kwargs)
         self.drawingSpace = drawingSpace
         self.app = app
+        self.filehandler = FileHandler(app)
         self.pack_propagate(0)
         self.saved_once = False  # Track if the drawing has been saved at least once
 
@@ -68,7 +70,7 @@ class Toolbar(tk.Frame):
                 self.app.saved_once = True
                 self.app.current_save_target_file = filename
         if filename:
-            self.app.save_drawing(filename)
+            self.filehandler.save_drawing(filename)
             self.app.unsaved_changes = False
 
     def save_as_drawing(self):
@@ -76,7 +78,7 @@ class Toolbar(tk.Frame):
         if filename:
             self.saved_once = True
             self.app.current_save_target_file = filename
-            self.app.save_drawing(filename)
+            self.filehandler.save_drawing(filename)
             self.app.unsaved_changes = False
 
     def import_drawing(self):
@@ -93,24 +95,24 @@ class Toolbar(tk.Frame):
 
         filename = tk.filedialog.askopenfilename(defaultextension=".dat")
         if filename:
-            self.app.import_drawing(filename)
-            self.app.current_save_target_file = filename
-            self.app.unsaved_changes = False
+            self.filehandler.import_drawing(filename)
+            self.filehandler.current_save_target_file = filename
+            self.filehandler.unsaved_changes = False
             
     def export_to_xml(self):
         filename = tk.filedialog.asksaveasfilename(defaultextension=".xml")
         if filename:
-            self.app.export_to_xml(filename)
+            self.filehandler.export_to_xml(filename)
         
     def export_to_ascii(self):
         filename = tk.filedialog.asksaveasfilename(defaultextension=".txt")
         if filename:
-            self.app.export_to_ascii(filename)
+            self.filehandler.export_to_ascii(filename)
             
     def import_from_ascii(self):
         filename = tk.filedialog.askopenfilename(defaultextension=".txt")
         if filename:
-            self.app.import_from_ascii(filename)
+            self.filehandler.import_from_ascii(filename)
 
 class ShapeToolbar(tk.Frame):
     def __init__(self, master, app, *args, **kwargs):
