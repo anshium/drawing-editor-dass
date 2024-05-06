@@ -17,7 +17,7 @@ class DrawingApp:
     def __init__(self, master):
         self.master = master
         self.master.title("Drawing Editor")
-        self.master.geometry("800x600")
+        self.master.geometry("900x700")
 
         self.canvas = DrawingSpace(master, self, bg="white", width=600, height=600)
         self.toolbar = Toolbar(self, master, self.canvas, width=150, height=600)
