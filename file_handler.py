@@ -184,7 +184,7 @@ class FileHandler:
         with open(filename, "w") as file:
             for drawn_obj in self.app.canvas.drawn_objects:
                 self.export_object_to_ascii(drawn_obj, file)
-        print("Drawing exported to ASCII successfully.")
+        print("Drawing saved to ASCII successfully.")
 
     def export_object_to_ascii(self, drawn_obj, file, depth=0):
         indent = "  " * depth

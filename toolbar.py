@@ -14,6 +14,9 @@ class Toolbar(tk.Frame):
         self.pack_propagate(0)
         self.saved_once = False  # Track if the drawing has been saved at least once
 
+        self.drawing_line = False
+        self.drawing_rect = False
+
         tk.Label(self, text="Draw Shapes", pady=10).pack(fill=tk.X)
         self.button_line = tk.Button(
             self, text="Line", command=self.draw_line, width=10
@@ -31,10 +34,10 @@ class Toolbar(tk.Frame):
             self, text="Open", command=self.import_drawing, width=10
         )
         self.button_export_ascii = tk.Button(
-            self, text="Save as ASCII", command=self.export_to_ascii, width=10
+            self, text="Save Compressed", command=self.save_drawing, width=10
         )
         self.button_import_ascii = tk.Button(
-            self, text="Open from ASCII", command=self.import_from_ascii, width=10
+            self, text="Open from Compressed", command=self.import_drawing, width=10
         )
         self.button_export_xml = tk.Button(
             self, text="Export to XML", command=self.export_to_xml, width=10
@@ -50,52 +53,70 @@ class Toolbar(tk.Frame):
         self.button_export_xml.pack(fill=tk.X)
         tk.Label(self, text="").pack(fill=tk.X)
 
+    def update_button_states(self):
+        if self.drawing_line:
+            self.button_line.config(bg="blue")
+            self.button_rectangle.config(bg="SystemButtonFace") 
+        elif self.drawing_rect:
+            self.button_line.config(bg="SystemButtonFace")
+            self.button_rectangle.config(bg="blue")
+        else:
+            self.button_line.config(bg="SystemButtonFace")
+            self.button_rectangle.config(bg="SystemButtonFace")
+
+
     def draw_line(self):
+        self.drawing_line = True
+        self.update_button_states()
         self.drawingSpace.on_click()
         Line(self.drawingSpace)
         self.app.unsaved_changes = True
+        self.drawing_line = False
+        self.update_button_states()
 
     def draw_rectangle(self):
+        self.drawing_rect = True
         self.drawingSpace.on_click()
         Rectangle(self.drawingSpace)
         self.app.unsaved_changes = True
+        self.drawing_rect = False
 
     def save_drawing(self):
 		# If already saved once, just save
         if self.app.saved_once:
             filename = self.app.current_save_target_file
         else:  # If not saved yet, behave like "Save As"
-            filename = tk.filedialog.asksaveasfilename(defaultextension=".dat")
+            filename = tk.filedialog.asksaveasfilename(defaultextension=".txt")
             if filename:
                 self.app.saved_once = True
                 self.app.current_save_target_file = filename
         if filename:
-            self.filehandler.save_drawing(filename)
+            self.filehandler.export_to_ascii(filename)
             self.app.unsaved_changes = False
 
     def save_as_drawing(self):
-        filename = tk.filedialog.asksaveasfilename(defaultextension=".dat")
+        filename = tk.filedialog.asksaveasfilename(defaultextension=".txt")
         if filename:
             self.saved_once = True
             self.app.current_save_target_file = filename
-            self.filehandler.save_drawing(filename)
+            self.filehandler.export_to_ascii(filename)
             self.app.unsaved_changes = False
 
     def import_drawing(self):
         if self.app.unsaved_changes:
-            response = messagebox.askyesnocancel(
+            response = tk.messagebox.askyesno(
 				"Unsaved Changes",
 				"There are unsaved changes. Do you want to save them before importing?",
 			)
-            if response == messagebox.YES:
-                self.toolbar.save_drawing()
+            if response == True:
+                self.save_drawing()
                 self.app.unsaved_changes = False
-            elif response == messagebox.CANCEL:
+            elif response == False:
                 pass
-
-        filename = tk.filedialog.askopenfilename(defaultextension=".dat")
+        filename = tk.filedialog.askopenfilename(defaultextension=".txt")
         if filename:
-            self.filehandler.import_drawing(filename)
+            # Can be swapped out with a new format altogether
+            self.filehandler.import_from_ascii(filename)
             self.filehandler.current_save_target_file = filename
             self.filehandler.unsaved_changes = False
             

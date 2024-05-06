@@ -38,16 +38,14 @@ class DrawingApp:
 
     def handle_window_close(self):
         if self.unsaved_changes:
-            response = messagebox.askyesnocancel(
+            response = tk.messagebox.askyesno(
 				"Unsaved Changes",
 				"There are unsaved changes. Do you want to save them before closing the application?",
 			)
-            if response == messagebox.YES:
+            if response == True:
                 self.toolbar.save_drawing()
-                self.app.unsaved_changes = False
+                self.unsaved_changes = False
                 print("Saved Changes!")
-            elif response == messagebox.CANCEL:
-                pass
         self.master.destroy()
 
 def main():
