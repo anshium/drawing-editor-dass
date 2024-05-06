@@ -98,6 +98,8 @@ class Rectangle(Shape):
             self.x2 + 20,
             self.y2 + 20,
         )
+        duplicate.color = self.color
+        duplicate.corner_style = self.corner_style
         duplicate.draw_shape()
         duplicate.drawn = True
         duplicate.canvas.bind("<Button-1>", duplicate.drawingSpace.on_click)
@@ -217,6 +219,7 @@ class Line(Shape):
             self.x2 + 20,
             self.y2 + 20,
         )
+        duplicate.color = self.color
         duplicate.draw_shape()
         duplicate.drawn = True
         duplicate.canvas.bind("<Button-1>", duplicate.drawingSpace.on_click)

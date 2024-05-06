@@ -118,6 +118,7 @@ class Toolbar(tk.Frame):
         filename = tk.filedialog.askopenfilename(defaultextension=".txt")
         if filename:
             # Can be swapped out with a new format altogether
+            self.drawingSpace.drawn_objects = []
             self.filehandler.import_from_ascii(filename)
             self.filehandler.current_save_target_file = filename
             self.filehandler.unsaved_changes = False
